@@ -9,6 +9,14 @@
 {% endblock %}
 
 {% block content %}
+
+    {% if comment_form.errors %}
+        <div id="alert">
+            <h2>Saving the comment failed!</h2>
+            <a href="#comment-form">Fix</a>
+        </div>
+    {% endif %}
+
     <section id="summary">
         <h2>{{ post.title }}</h2>
         <div>
@@ -21,7 +29,8 @@
             <address>By <a href="mailto:{{ post.author.email }}">{{ post.author|title }}</a></address>
             <div>
                 Last updated on
-                <time>{{ post.date|date:'D d M Y' }}</time>.
+                <time>{{ post.date|date:'D d M Y' }}</time>
+                .
             </div>
         </article>
     </section>
@@ -29,4 +38,30 @@
     <main>
         {{ post.content|linebreaks }}
     </main>
+
+    <section id="comments">
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <h2>{{ comment.user_name }}</h2>
+                    <p>{{ comment.text|linebreaks }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section id="comment-form">
+        <h3>Your comment</h3>
+        <form action="{% url 'post-details-page' post.slug %}" method="post">
+            {% csrf_token %}
+            {% for field in comment_form %}
+                <div class="form-control {% if field.errors %}invalid{% endif %}">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <button>Save</button>
+        </form>
+    </section>
 {% endblock %}
